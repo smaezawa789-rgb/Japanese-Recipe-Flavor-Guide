@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142c45">
+  <title>Japanese Flavor Ratio Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #142c45;
+      --navy-soft: #203e5c;
+      --red: #c84b3b;
+      --red-dark: #a83c30;
+      --paper: #fffefa;
+      --cream: #f6f4ee;
+      --ink: #253344;
+      --muted: #697684;
+      --line: #e5e6e3;
+      --shadow: 0 20px 55px rgba(20, 44, 69, .09);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    .topbar { height: 5px; background: var(--red); }
+    header {
+      background: var(--paper);
+      border-bottom: 1px solid rgba(20, 44, 69, .08);
+    }
+    .header-inner {
+      max-width: 1080px;
+      margin: auto;
+      padding: 21px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--navy); }
+    .brand-mark {
+      width: 40px; height: 40px; display: grid; place-items: center;
+      border-radius: 50%; background: var(--navy); color: white;
+      font-family: Georgia, serif; font-size: 20px;
+    }
+    .brand-name { font-weight: 750; letter-spacing: -.02em; font-size: 15px; }
+    .header-note { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    main { max-width: 1080px; margin: auto; padding: 54px 24px 72px; }
+    .intro { text-align: center; max-width: 660px; margin: 0 auto 32px; }
+    .eyebrow { color: var(--red); font-size: 12px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { color: var(--navy); font-family: Georgia, "Times New Roman", serif; font-size: clamp(34px, 5vw, 48px); line-height: 1.12; letter-spacing: -.035em; margin: 12px 0; }
+    .intro p { color: var(--muted); font-size: 16px; margin: 0; }
+    .calculator {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      overflow: hidden; background: var(--paper); border: 1px solid var(--line);
+      border-radius: 18px; box-shadow: var(--shadow);
+    }
+    .controls { padding: clamp(24px, 4vw, 42px); }
+    .results { padding: clamp(24px, 4vw, 42px); background: #f9faf9; border-left: 1px solid var(--line); }
+    .section-kicker { display: flex; align-items: center; gap: 10px; color: var(--navy); font-size: 14px; font-weight: 750; margin: 0 0 25px; }
+    .step { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 50%; color: white; background: var(--red); font-size: 12px; }
+    .field { margin-bottom: 21px; }
+    label, .field-label { display: block; color: var(--navy); font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    select, input {
+      width: 100%; min-height: 48px; border: 1px solid #d9dfe2; border-radius: 9px;
+      padding: 0 13px; background: white; color: var(--ink); font: inherit; font-size: 15px;
+    }
+    select:focus, input:focus { outline: 3px solid rgba(200, 75, 59, .15); border-color: var(--red); }
+    .mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 10px; background: #eef0ef; margin-bottom: 16px; }
+    .mode-tabs button {
+      border: 0; border-radius: 7px; padding: 10px 8px; background: transparent;
+      color: var(--muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .mode-tabs button[aria-pressed="true"] { color: var(--navy); background: white; box-shadow: 0 1px 4px rgba(20,44,69,.12); }
+    .servings-wrap, .dashi-wrap { display: none; }
+    .servings-wrap.active, .dashi-wrap.active { display: block; }
+    .input-with-unit { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
+    .input-with-unit span { color: var(--muted); font-size: 13px; }
+    .unit-choice { display: flex; flex-wrap: wrap; gap: 8px; }
+    .unit-choice label {
+      display: inline-flex; align-items: center; gap: 7px; margin: 0; padding: 9px 12px;
+      border: 1px solid var(--line); border-radius: 8px; background: white; font-size: 13px; cursor: pointer;
+    }
+    .unit-choice input { width: 15px; min-height: auto; height: 15px; margin: 0; accent-color: var(--red); }
+    .calculate {
+      width: 100%; min-height: 51px; margin-top: 3px; border: 0; border-radius: 9px;
+      color: white; background: var(--red); font: inherit; font-weight: 750; cursor: pointer;
+      transition: background .18s ease, transform .18s ease;
+    }
+    .calculate:hover { background: var(--red-dark); transform: translateY(-1px); }
+    .calculate:focus-visible, .mode-tabs button:focus-visible { outline: 3px solid rgba(200,75,59,.35); outline-offset: 2px; }
+    .result-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .result-heading h2 { margin: 0; color: var(--navy); font: 700 22px/1.2 Georgia, serif; }
+    .result-heading p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+    .unit-badge { white-space: nowrap; border: 1px solid #dfe3e4; border-radius: 99px; padding: 5px 9px; color: var(--navy-soft); background: white; font-size: 11px; font-weight: 700; }
+    .ingredient-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+    .ingredient-list li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 2px; border-bottom: 1px solid var(--line); }
+    .ingredient-name { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 14px; }
+    .ingredient-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--red); }
+    .amount { color: var(--navy); font-size: 15px; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .tip { margin-top: 22px; padding: 16px 17px; border-left: 3px solid var(--red); border-radius: 0 9px 9px 0; background: white; }
+    .tip-title { color: var(--red-dark); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .tip p { margin: 5px 0 0; color: #536170; font-size: 13px; }
+    .footnote { margin: 18px 2px 0; color: var(--muted); font-size: 11px; }
+    .substitute-link {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 14px; padding: 14px 15px; border: 1px solid #ead8d3;
+      border-radius: 9px; background: #fff9f7; color: var(--navy);
+      font-size: 13px; font-weight: 700; text-decoration: none;
+      transition: border-color .18s ease, background .18s ease;
+    }
+    .substitute-link:hover { border-color: var(--red); background: #fff3ef; }
+    .substitute-link span:last-child { color: var(--red); font-size: 18px; }
+    footer { text-align: center; color: #7a858d; font-size: 12px; padding: 0 20px 28px; }
+    @media (max-width: 700px) {
+      main { padding: 38px 16px 48px; }
+      .header-inner { padding: 16px; }
+      .header-note { font-size: 10px; }
+      .intro { margin-bottom: 24px; }
+      .calculator { grid-template-columns: 1fr; border-radius: 14px; }
+      .controls { padding: 25px 21px 28px; }
+      .results { padding: 26px 21px; border-left: 0; border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 390px) { .header-note { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="topbar" aria-hidden="true"></div>
+  <header>
+    <div class="header-inner">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">和</div><div class="brand-name">The Japanese Kitchen</div></div>
+      <div class="header-note">Simple ratios · authentic flavor</div>
+    </div>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div class="eyebrow">A little Japanese kitchen wisdom</div>
+      <h1 id="page-title">Find your perfect flavor ratio</h1>
+      <p>Choose a dish and serving size. Get a balanced starting point for your dashi and seasonings.</p>
+    </section>
+
+    <section class="calculator" aria-label="Japanese seasoning ratio calculator">
+      <div class="controls">
+        <h2 class="section-kicker"><span class="step">1</span> Choose your dish</h2>
+        <div class="field">
+          <label for="dish">Popular Japanese dish</label>
+          <select id="dish">
+            <option value="oyakodon">Oyakodon (Chicken &amp; Egg Bowl)</option>
+            <option value="nikujaga">Nikujaga (Beef &amp; Potato Stew)</option>
+            <option value="teriyaki">Teriyaki Sauce</option>
+            <option value="tentsuyu">Tempura Dipping Sauce (Tentsuyu)</option>
+            <option value="katsudon">Katsudon / Gyudon Sauce</option>
+          </select>
+        </div>
+
+        <h2 class="section-kicker"><span class="step">2</span> Set your amount</h2>
+        <div class="mode-tabs" role="group" aria-label="Choose how to scale the recipe">
+          <button type="button" id="servingsMode" aria-pressed="true">By servings</button>
+          <button type="button" id="dashiMode" aria-pressed="false">By dashi amount</button>
+        </div>
+        <div class="servings-wrap active" id="servingsWrap">
+          <div class="field">
+            <label for="servings">Servings</label>
+            <select id="servings">
+              <option value="1">1 serving</option><option value="2" selected>2 servings</option>
+              <option value="3">3 servings</option><option value="4">4 servings</option>
+              <option value="5">5 servings</option><option value="6">6 servings</option>
+            </select>
+          </div>
+        </div>
+        <div class="dashi-wrap" id="dashiWrap">
+          <div class="field">
+            <label for="dashiAmount">Total dashi</label>
+            <div class="input-with-unit"><input id="dashiAmount" type="number" min="1" step="any" value="160" inputmode="decimal"><span id="dashiInputUnit">ml</span></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Dashi input unit</span>
+            <div class="unit-choice">
+              <label><input type="radio" name="dashiUnit" value="ml" checked> ml</label>
+              <label><input type="radio" name="dashiUnit" value="cup"> US cups</label>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-kicker"><span class="step">3</span> Choose display units</h2>
+        <div class="field">
+          <span class="field-label">Show amounts in</span>
+          <div class="unit-choice" role="radiogroup" aria-label="Output measurement unit">
+            <label><input type="radio" name="outputUnit" value="ml" checked> Milliliters</label>
+            <label><input type="radio" name="outputUnit" value="tbsp"> Tablespoons</label>
+            <label><input type="radio" name="outputUnit" value="cup"> US cups</label>
+          </div>
+        </div>
+        <button class="calculate" id="calculate" type="button">Calculate Ratio</button>
+      </div>
+
+      <div class="results" aria-live="polite" aria-atomic="true">
+        <div class="result-heading">
+          <div><h2 id="resultTitle">Oyakodon</h2><p id="resultSubtitle">Seasonings for 2 servings</p></div>
+          <span class="unit-badge" id="unitBadge">ML</span>
+        </div>
+        <ul class="ingredient-list" id="ingredientList"></ul>
+        <div class="tip"><div class="tip-title">Kitchen tip</div><p id="cookingTip"></p></div>
+        <p class="footnote">These ratios are a starting point. Taste as you cook and adjust to your ingredients and preference. 1 US cup = 236.6 ml · 1 tbsp = 15 ml.</p>
+        <a class="substitute-link" href="https://japanese-cooking-tool.vercel.app/" target="_blank" rel="noopener noreferrer">
+          <span>Missing an ingredient? Explore substitutes</span><span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+  </main>
+  <footer>Made for curious home cooks, wherever you are.</footer>
+
+  <script>
+    // Recipe amounts are in ml per serving. Sugar uses an approximate volume equivalent.
+    const recipes = {
+      oyakodon: { name: 'Oyakodon', base: { dashi: 80, soy: 15, mirin: 15, sake: 10, sugar: 3 }, tip: 'Simmer the chicken gently in the sauce, then add lightly beaten eggs in two pours. Cover briefly and keep the eggs soft and silky.' },
+      nikujaga: { name: 'Nikujaga', base: { dashi: 150, soy: 18, mirin: 15, sake: 15, sugar: 8 }, tip: 'Cut the potatoes into even pieces and simmer gently until just tender. Let the stew rest for a few minutes so the potatoes absorb the broth.' },
+      teriyaki: { name: 'Teriyaki Sauce', base: { dashi: 0, soy: 15, mirin: 15, sake: 15, sugar: 5 }, tip: 'Simmer soy sauce, mirin, sake, and sugar until glossy. Add the sauce near the end of cooking so the sugars caramelize without burning.' },
+      tentsuyu: { name: 'Tempura Dipping Sauce', base: { dashi: 90, soy: 15, mirin: 15, sake: 0, sugar: 0 }, tip: 'Bring the dashi, soy sauce, and mirin briefly to a boil, then cool slightly. Serve warm or chilled with grated daikon for a lighter dip.' },
+      katsudon: { name: 'Katsudon / Gyudon Sauce', base: { dashi: 75, soy: 15, mirin: 15, sake: 10, sugar: 4 }, tip: 'Let the sauce bubble for a moment before adding the toppings. For katsudon, pour beaten egg around the cutlet and cover until just set.' }
+    };
+    const labels = { dashi: 'Dashi', soy: 'Soy Sauce', mirin: 'Mirin', sake: 'Sake', sugar: 'Sugar' };
+    const cupMl = 236.588;
+    let mode = 'servings';
+
+    const dish = document.getElementById('dish');
+    const servings = document.getElementById('servings');
+    const dashiAmount = document.getElementById('dashiAmount');
+    const servingsMode = document.getElementById('servingsMode');
+    const dashiMode = document.getElementById('dashiMode');
+
+    function selectedRadio(name) { return document.querySelector('input[name="' + name + '"]:checked').value; }
+    function setMode(nextMode) {
+      mode = nextMode;
+      const byServings = mode === 'servings';
+      servingsMode.setAttribute('aria-pressed', String(byServings));
+      dashiMode.setAttribute('aria-pressed', String(!byServings));
+      document.getElementById('servingsWrap').classList.toggle('active', byServings);
+      document.getElementById('dashiWrap').classList.toggle('active', !byServings);
+      calculate();
+    }
+    function formatAmount(ml, unit) {
+      if (unit === 'tbsp') return (ml / 15).toFixed(ml / 15 < 10 ? 1 : 0).replace(/\.0$/, '') + ' tbsp';
+      if (unit === 'cup') return (ml / cupMl).toFixed(ml / cupMl < 1 ? 2 : 1).replace(/0+$/, '').replace(/\.$/, '') + ' cup';
+      return (ml < 10 ? ml.toFixed(1) : ml.toFixed(0)).replace(/\.0$/, '') + ' ml';
+    }
+    function calculate() {
+      const recipe = recipes[dish.value];
+      const outputUnit = selectedRadio('outputUnit');
+      let factor;
+      let subtitle;
+      if (mode === 'servings') {
+        factor = Number(servings.value);
+        subtitle = 'Seasonings for ' + factor + (factor === 1 ? ' serving' : ' servings');
+      } else {
+        const targetMl = Number(dashiAmount.value) * (selectedRadio('dashiUnit') === 'cup' ? cupMl : 1);
+        const baseDashi = recipe.base.dashi;
+        factor = baseDashi > 0 ? targetMl / baseDashi : 0;
+        subtitle = baseDashi > 0 ? 'Scaled to ' + formatAmount(targetMl, selectedRadio('dashiUnit') === 'cup' ? 'cup' : 'ml') + ' dashi' : 'This sauce does not use dashi';
+      }
+      document.getElementById('resultTitle').textContent = recipe.name;
+      document.getElementById('resultSubtitle').textContent = subtitle;
+      document.getElementById('unitBadge').textContent = outputUnit === 'ml' ? 'ML' : outputUnit === 'tbsp' ? 'TABLESPOONS' : 'US CUPS';
+      document.getElementById('cookingTip').textContent = recipe.tip;
+      document.getElementById('ingredientList').innerHTML = Object.entries(recipe.base).map(([key, amount]) => {
+        const scaled = amount * factor;
+        const value = scaled === 0 ? '0 ' + (outputUnit === 'ml' ? 'ml' : outputUnit === 'tbsp' ? 'tbsp' : 'cup') : formatAmount(scaled, outputUnit);
+        return '<li><span class="ingredient-name"><span class="ingredient-dot" aria-hidden="true"></span>' + labels[key] + '</span><span class="amount">' + value + '</span></li>';
+      }).join('');
+    }
+
+    servingsMode.addEventListener('click', () => setMode('servings'));
+    dashiMode.addEventListener('click', () => setMode('dashi'));
+    document.getElementById('calculate').addEventListener('click', calculate);
+    dish.addEventListener('change', calculate);
+    servings.addEventListener('change', calculate);
+    dashiAmount.addEventListener('input', calculate);
+    document.querySelectorAll('input[name="outputUnit"], input[name="dashiUnit"]').forEach(input => input.addEventListener('change', () => {
+      document.getElementById('dashiInputUnit').textContent = selectedRadio('dashiUnit') === 'cup' ? 'US cups' : 'ml';
+      calculate();
+    }));
+    calculate();
+  </script>
+</body>
+</html>
