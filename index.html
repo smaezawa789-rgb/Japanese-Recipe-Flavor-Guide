@@ -106,6 +106,19 @@
     .tip { margin-top: 22px; padding: 16px 17px; border-left: 3px solid var(--red); border-radius: 0 9px 9px 0; background: white; }
     .tip-title { color: var(--red-dark); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
     .tip p { margin: 5px 0 0; color: #536170; font-size: 13px; }
+    .instructions { margin-top: 22px; }
+    .instructions h3 { margin: 0 0 12px; color: var(--navy); font: 700 19px/1.25 Georgia, serif; }
+    .instructions ol { list-style: none; counter-reset: method-step; margin: 0; padding: 0; }
+    .instructions li {
+      counter-increment: method-step; position: relative; min-height: 32px;
+      margin: 0 0 12px; padding: 2px 0 0 38px; color: #536170; font-size: 13px;
+    }
+    .instructions li::before {
+      content: counter(method-step); position: absolute; left: 0; top: 0;
+      display: grid; place-items: center; width: 25px; height: 25px;
+      border-radius: 50%; background: #f5e8e4; color: var(--red-dark);
+      font-size: 12px; font-weight: 800;
+    }
     .footnote { margin: 18px 2px 0; color: var(--muted); font-size: 11px; }
     .substitute-link {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -206,6 +219,10 @@
         </div>
         <ul class="ingredient-list" id="ingredientList"></ul>
         <div class="tip"><div class="tip-title">Kitchen tip</div><p id="cookingTip"></p></div>
+        <section class="instructions" aria-labelledby="instructionsTitle">
+          <h3 id="instructionsTitle">How to make it</h3>
+          <ol id="cookingSteps"></ol>
+        </section>
         <p class="footnote">These ratios are a starting point. Taste as you cook and adjust to your ingredients and preference. 1 US cup = 236.6 ml · 1 tbsp = 15 ml.</p>
         <a class="substitute-link" href="https://japanese-cooking-tool.vercel.app/" target="_blank" rel="noopener noreferrer">
           <span>Missing an ingredient? Explore substitutes</span><span aria-hidden="true">↗</span>
@@ -218,11 +235,60 @@
   <script>
     // Recipe amounts are in ml per serving. Sugar uses an approximate volume equivalent.
     const recipes = {
-      oyakodon: { name: 'Oyakodon', base: { dashi: 80, soy: 15, mirin: 15, sake: 10, sugar: 3 }, tip: 'Simmer the chicken gently in the sauce, then add lightly beaten eggs in two pours. Cover briefly and keep the eggs soft and silky.' },
-      nikujaga: { name: 'Nikujaga', base: { dashi: 150, soy: 18, mirin: 15, sake: 15, sugar: 8 }, tip: 'Cut the potatoes into even pieces and simmer gently until just tender. Let the stew rest for a few minutes so the potatoes absorb the broth.' },
-      teriyaki: { name: 'Teriyaki Sauce', base: { dashi: 0, soy: 15, mirin: 15, sake: 15, sugar: 5 }, tip: 'Simmer soy sauce, mirin, sake, and sugar until glossy. Add the sauce near the end of cooking so the sugars caramelize without burning.' },
-      tentsuyu: { name: 'Tempura Dipping Sauce', base: { dashi: 90, soy: 15, mirin: 15, sake: 0, sugar: 0 }, tip: 'Bring the dashi, soy sauce, and mirin briefly to a boil, then cool slightly. Serve warm or chilled with grated daikon for a lighter dip.' },
-      katsudon: { name: 'Katsudon / Gyudon Sauce', base: { dashi: 75, soy: 15, mirin: 15, sake: 10, sugar: 4 }, tip: 'Let the sauce bubble for a moment before adding the toppings. For katsudon, pour beaten egg around the cutlet and cover until just set.' }
+      oyakodon: {
+        name: 'Oyakodon', base: { dashi: 80, soy: 15, mirin: 15, sake: 10, sugar: 3 },
+        tip: 'Simmer the chicken gently in the sauce, then add lightly beaten eggs in two pours. Cover briefly and keep the eggs soft and silky.',
+        steps: [
+          'Slice the onion and cut the chicken into bite-size pieces. Lightly beat the eggs in a bowl.',
+          'Add the dashi, soy sauce, mirin, sake, sugar, and onion to a pan. Bring to a gentle simmer.',
+          'Add the chicken and simmer until cooked through, turning the pieces once.',
+          'Pour in about two-thirds of the eggs. Cover and cook over low heat until partly set, then add the remaining egg.',
+          'Turn off the heat while the eggs are still soft. Slide the mixture over hot rice and serve.'
+        ]
+      },
+      nikujaga: {
+        name: 'Nikujaga', base: { dashi: 150, soy: 18, mirin: 15, sake: 15, sugar: 8 },
+        tip: 'Cut the potatoes into even pieces and simmer gently until just tender. Let the stew rest for a few minutes so the potatoes absorb the broth.',
+        steps: [
+          'Peel and cut the potatoes and carrots into bite-size pieces. Slice the onion and separate the beef.',
+          'Heat a little oil in a pot. Briefly cook the beef, then add the onion, potatoes, and carrots.',
+          'Pour in the dashi, sake, mirin, and sugar. Bring to a simmer and skim off any foam.',
+          'Cover loosely and simmer until the potatoes are nearly tender. Add the soy sauce and continue cooking gently.',
+          'Remove from the heat and let the stew rest for 10 minutes before serving.'
+        ]
+      },
+      teriyaki: {
+        name: 'Teriyaki Sauce', base: { dashi: 0, soy: 15, mirin: 15, sake: 15, sugar: 5 },
+        tip: 'Simmer soy sauce, mirin, sake, and sugar until glossy. Add the sauce near the end of cooking so the sugars caramelize without burning.',
+        steps: [
+          'Combine the soy sauce, mirin, sake, and sugar in a small saucepan.',
+          'Warm over medium heat, stirring until the sugar dissolves.',
+          'Bring to a gentle simmer and cook until slightly thickened and glossy.',
+          'Brush over grilled or pan-seared chicken, fish, or vegetables during the final minutes of cooking.',
+          'Turn the food frequently so the sauce coats it evenly without scorching.'
+        ]
+      },
+      tentsuyu: {
+        name: 'Tempura Dipping Sauce', base: { dashi: 90, soy: 15, mirin: 15, sake: 0, sugar: 0 },
+        tip: 'Bring the dashi, soy sauce, and mirin briefly to a boil, then cool slightly. Serve warm or chilled with grated daikon for a lighter dip.',
+        steps: [
+          'Add the dashi, soy sauce, and mirin to a small saucepan.',
+          'Bring the mixture just to a boil, then lower the heat and simmer briefly.',
+          'Remove from the heat and let the dipping sauce cool to your preferred temperature.',
+          'Serve in small bowls with hot tempura. Add grated daikon or ginger if desired.'
+        ]
+      },
+      katsudon: {
+        name: 'Katsudon / Gyudon Sauce', base: { dashi: 75, soy: 15, mirin: 15, sake: 10, sugar: 4 },
+        tip: 'Let the sauce bubble for a moment before adding the toppings. For katsudon, pour beaten egg around the cutlet and cover until just set.',
+        steps: [
+          'Add the dashi, soy sauce, mirin, sake, and sugar to a skillet. Bring to a gentle simmer.',
+          'For gyudon, add thinly sliced onion and simmer until softened. Add thinly sliced beef and cook until no longer pink.',
+          'For katsudon, place sliced cooked pork cutlet in the simmering sauce. Pour beaten egg around it and cover until just set.',
+          'Taste the sauce and adjust with a little water or seasoning if needed.',
+          'Serve the beef or cutlet and sauce over hot rice.'
+        ]
+      }
     };
     const labels = { dashi: 'Dashi', soy: 'Soy Sauce', mirin: 'Mirin', sake: 'Sake', sugar: 'Sugar' };
     const cupMl = 236.588;
@@ -267,6 +333,7 @@
       document.getElementById('resultSubtitle').textContent = subtitle;
       document.getElementById('unitBadge').textContent = outputUnit === 'ml' ? 'ML' : outputUnit === 'tbsp' ? 'TABLESPOONS' : 'US CUPS';
       document.getElementById('cookingTip').textContent = recipe.tip;
+      document.getElementById('cookingSteps').innerHTML = recipe.steps.map(step => '<li>' + step + '</li>').join('');
       document.getElementById('ingredientList').innerHTML = Object.entries(recipe.base).map(([key, amount]) => {
         const scaled = amount * factor;
         const value = scaled === 0 ? '0 ' + (outputUnit === 'ml' ? 'ml' : outputUnit === 'tbsp' ? 'tbsp' : 'cup') : formatAmount(scaled, outputUnit);
