@@ -50,6 +50,15 @@
     }
     .brand-name { font-weight: 750; letter-spacing: -.02em; font-size: 15px; }
     .header-note { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .hub-link {
+      display: inline-flex; align-items: center; gap: 9px; flex: 0 0 auto;
+      padding: 11px 16px; border: 1px solid var(--red); border-radius: 9px;
+      color: white; background: var(--red); font-size: 13px; font-weight: 750;
+      box-shadow: 0 3px 9px rgba(168, 60, 48, .2);
+      text-decoration: none; transition: border-color .18s ease, color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+    .hub-link:hover { border-color: var(--red-dark); color: white; background: var(--red-dark); box-shadow: 0 5px 13px rgba(168, 60, 48, .25); transform: translateY(-1px); }
+    .hub-link:focus-visible { outline: 3px solid rgba(200, 75, 59, .25); outline-offset: 2px; }
     main { max-width: 1080px; margin: auto; padding: 54px 24px 72px; }
     .intro { text-align: center; max-width: 660px; margin: 0 auto 32px; }
     .eyebrow { color: var(--red); font-size: 12px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
@@ -132,8 +141,9 @@
     footer { text-align: center; color: #7a858d; font-size: 12px; padding: 0 20px 28px; }
     @media (max-width: 700px) {
       main { padding: 38px 16px 48px; }
-      .header-inner { padding: 16px; }
+      .header-inner { padding: 16px; flex-wrap: wrap; }
       .header-note { font-size: 10px; }
+      .hub-link { order: 3; }
       .intro { margin-bottom: 24px; }
       .calculator { grid-template-columns: 1fr; border-radius: 14px; }
       .controls { padding: 25px 21px 28px; }
@@ -148,6 +158,7 @@
     <div class="header-inner">
       <div class="brand"><div class="brand-mark" aria-hidden="true">和</div><div class="brand-name">The Japanese Kitchen</div></div>
       <div class="header-note">Simple ratios · authentic flavor</div>
+      <a class="hub-link" href="https://japanese-cooking-hub.vercel.app/" aria-label="Back to Hub Home">← Back to Hub Home</a>
     </div>
   </header>
   <main>
